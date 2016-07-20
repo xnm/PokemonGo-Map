@@ -406,9 +406,12 @@ def get_heartbeat(service,
                            m4,
                            pokemon_pb2.RequestEnvelop.Requests(),
                            m5, )
-    if response is None:
+
+    try:
+        payload = response.payload[0]
+    except (AttributeError, IndexError):
         return
-    payload = response.payload[0]
+
     heartbeat = pokemon_pb2.ResponseEnvelop.HeartbeatPayload()
     heartbeat.ParseFromString(payload)
     return heartbeat
@@ -434,7 +437,7 @@ def get_token(service, username, password):
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-a', '--auth_service', help='Auth Service', default='ptc')
+        '-a', '--auth_service', type=str.lower, help='Auth Service', default='ptc')
     parser.add_argument('-u', '--username', help='Username', required=True)
     parser.add_argument('-p', '--password', help='Password', required=False)
     parser.add_argument(
@@ -593,8 +596,6 @@ def main():
     y = 0
     dx = 0
     dy = -1
-    origin_lat = FLOAT_LAT
-    origin_lon = FLOAT_LONG
     steplimit2 = steplimit**2
     for step in range(steplimit2):
         #starting at 0 index
@@ -666,7 +667,7 @@ def process_step(args, api_endpoint, access_token, profile_response,
 transform_from_wgs_to_gcj(Location(Fort.Latitude, Fort.Longitude))
                             if Fort.GymPoints and args.display_gym:
                                 gyms[Fort.FortId] = [Fort.Team, Fort.Latitude,
-                                                     Fort.Longitude]
+                                                     Fort.Longitude, Fort.GymPoints]
 
                             elif Fort.FortType \
                                 and args.display_pokestop:
@@ -864,7 +865,7 @@ def get_pokemarkers():
             'disappear_time': -1,
             'lat': gym[1],
             'lng': gym[2],
-            'infobox': "<div><center><small>Gym owned by:</small><br><b style='color:" + color + "'>Team " + numbertoteam[gym[0]] + "</b><br><img id='" + numbertoteam[gym[0]] + "' height='100px' src='"+icon+"'></center>"
+            'infobox': "<div><center><small>Gym owned by:</small><br><b style='color:" + color + "'>Team " + numbertoteam[gym[0]] + "</b><br><img id='" + numbertoteam[gym[0]] + "' height='100px' src='"+icon+"'><br>Prestige: " + str(gym[3]) + "</center>"
         })
     for stop_key in pokestops:
         stop = pokestops[stop_key]
@@ -875,7 +876,7 @@ def get_pokemarkers():
                 'icon': 'static/forts/PstopLured.png',
                 'lat': stop[0],
                 'lng': stop[1],
-                'infobox': 'Lured Pokestop, expires at' + stop[2],
+                'infobox': 'Lured Pokestop, expires at ' + stop[2],
             })
         else:
             pokeMarkers.append({
