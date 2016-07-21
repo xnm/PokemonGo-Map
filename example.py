@@ -445,9 +445,9 @@ def get_args():
     parser.add_argument('-st', '--step-limit', help='Steps', required=True)
     group = parser.add_mutually_exclusive_group(required=False)
     group.add_argument(
-        '-i', '--ignore', help='Comma-separated list of Pokémon names to ignore')
+        '-i', '--ignore', help='Comma-separated list of Pokémon names or IDs to ignore')
     group.add_argument(
-        '-o', '--only', help='Comma-separated list of Pokémon names to search')
+        '-o', '--only', help='Comma-separated list of Pokémon names or IDs to search')
     parser.add_argument(
         "-ar",
         "--auto_refresh",
@@ -630,7 +630,7 @@ def main():
 
 def process_step(args, api_endpoint, access_token, profile_response,
                  pokemonsJSON, ignore, only):
-    print('[+] Searching pokemons for location {} {}'.format(FLOAT_LAT, FLOAT_LONG))
+    print('[+] Searching for Pokemon at location {} {}'.format(FLOAT_LAT, FLOAT_LONG))
     origin = LatLng.from_degrees(FLOAT_LAT, FLOAT_LONG)
     step_lat = FLOAT_LAT
     step_long = FLOAT_LONG
@@ -639,7 +639,7 @@ def process_step(args, api_endpoint, access_token, profile_response,
     h = get_heartbeat(args.auth_service, api_endpoint, access_token,
                       profile_response)
     hs = [h]
-    seen = set([])
+    seen = {}
 
     for child in parent.children():
         latlng = LatLng.from_point(Cell(child).get_center())
@@ -654,11 +654,10 @@ def process_step(args, api_endpoint, access_token, profile_response,
         try:
             for cell in hh.cells:
                 for wild in cell.WildPokemon:
-                    hash = wild.SpawnPointId + ':' \
-                        + str(wild.pokemon.PokemonId)
-                    if hash not in seen:
-                        visible.append(wild)
-                        seen.add(hash)
+                    hash = wild.SpawnPointId;
+                    if hash not in seen.keys() or (seen[hash].TimeTillHiddenMs <= wild.TimeTillHiddenMs):
+                        visible.append(wild)    
+                    seen[hash] = wild.TimeTillHiddenMs
                 if cell.Fort:
                     for Fort in cell.Fort:
                         if Fort.Enabled == True:
@@ -683,12 +682,13 @@ transform_from_wgs_to_gcj(Location(Fort.Latitude, Fort.Longitude))
             break
 
     for poke in visible:
-        pokename = pokemonsJSON[str(poke.pokemon.PokemonId)]
+        pokeid = str(poke.pokemon.PokemonId)
+        pokename = pokemonsJSON[pokeid]
         if args.ignore:
-            if pokename.lower() in ignore:
+            if pokename.lower() in ignore or pokeid in ignore:
                 continue
         elif args.only:
-            if pokename.lower() not in only:
+            if pokename.lower() not in only and pokeid not in only:
                 continue
 
         disappear_timestamp = time.time() + poke.TimeTillHiddenMs \
@@ -851,11 +851,11 @@ def get_pokemarkers():
         if gym[0] == 0:
             color = "rgba(0,0,0,.4)"
         if gym[0] == 1:
-            color = "rgba(0, 0, 256, .4)"
+            color = "rgba(74, 138, 202, .6)"
         if gym[0] == 2:
-            color = "rgba(255, 0, 0, .4)"
+            color = "rgba(240, 68, 58, .6)"
         if gym[0] == 3:
-            color = "rgba(255, 255, 0, .4)"
+            color = "rgba(254, 217, 40, .6)"
 
         icon = 'static/forts/'+numbertoteam[gym[0]]+'_large.png'
         pokeMarkers.append({
@@ -873,6 +873,7 @@ def get_pokemarkers():
             pokeMarkers.append({
                 'type': 'lured_stop',
                 'key': stop_key,
+                'disappear_time': -1,
                 'icon': 'static/forts/PstopLured.png',
                 'lat': stop[0],
                 'lng': stop[1],
