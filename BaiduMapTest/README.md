@@ -1,6 +1,6 @@
 尝试使用百度地图
 
-加载时使用一下命令，-k后为AK(百度apiKey)
+加载时使用一下命令，账号依旧为google账号，-k后为AK(百度apiKey)
 python runserver.py -a google -u UserName -p Passowrd -st 10 -c -k Yoz3ZLBikKLaGG25dfkYc1LnOZVozLow -l "location"
 
 已知问题1：关键字查询传给后台是真实坐标，后台接收后会再进行一次火星坐标转换；
