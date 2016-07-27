@@ -1,35 +1,20 @@
-# PokemonGo Map![Python 2.7](https://img.shields.io/badge/python-2.7-blue.svg)
+尝试使用百度地图
+
+加载时使用一下命令，-k后为AK(百度apiKey)
+python runserver.py -a google -u UserName -p Passowrd -st 10 -c -k Yoz3ZLBikKLaGG25dfkYc1LnOZVozLow -l "location"
+
+已知问题1：关键字查询传给后台是真实坐标，后台接收后会再进行一次火星坐标转换；
+解决方案：transform.py中有地址转换算法。要不要尝试在前端再转换回去。
+
+已知问题2：地图皮肤我弄了一个PokemonGo风格的，在map.js里面，时间关系没有做皮肤切换的选择框
+
+已知问题4：Marker对应的InfoWindow并没有进行修改，还是老外做的那个，里面还带着GMap的链接；InfoWindow的创建是以传的点为中心，会将Marker覆盖，需要调整位置，向上一丢丢；并且InfoWindow的样式可能需要调整。
+
+已知问题5：没有测试全部功能，目测有几个功能不好使，还有百八十个问题得搞。
 
 
-Live visualization of all the pokemon (with option to show gyms and pokestops) in your area. This is a proof of concept that we can load all the pokemon visible nearby given a location. Currently runs on a Flask server displaying Google Maps with markers on it.
-
-[![Deploy](https://raw.githubusercontent.com/sych74/PokemonGo-Map-in-Cloud/master/images/deploy-to-jelastic.png)](https://jelastic.com/install-application/?manifest=https://raw.githubusercontent.com/sych74/PokemonGo-Map-in-Cloud/master/manifest.jps) [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://github.com/AHAAAAAAA/PokemonGo-Map/wiki/Heroku-Deployment) 
-
-#[Twitter] (https://twitter.com/PoGoMDev), [Website] (https://jz6.github.io/PoGoMap/)#
-
-![Map](https://raw.githubusercontent.com/AHAAAAAAA/PokemonGo-Map/master/static/cover.png)
 
 
-## How to setup
-
-For instructions on how to setup and run the tool, please refer to the project [wiki](https://github.com/AHAAAAAAA/PokemonGo-Map/wiki), or the [video guide](https://www.youtube.com/watch?v=RJKAulPCkRI).
-
-
-## Android Version
-
-There is an [Android port](https://github.com/omkarmoghe/Pokemap) in the works. All Android related prs and issues please refer to this [repo](https://github.com/omkarmoghe/Pokemap).
-
-## iOS Version
-
-There is an [iOS port](https://github.com/istornz/iPokeGo) in the works. All iOS related prs and issues please refer to this [repo](https://github.com/istornz/iPokeGo).
-
-## Warnings
-
-Using this software is against the ToS of the game. You can get banned, use this tool at your own risk.
-
-
-## Contributions
-
-Please submit all pull requests to [develop](https://github.com/AHAAAAAAA/PokemonGo-Map/tree/develop) branch.
-
-Building off [tejado's python pgoapi](https://github.com/tejado/pgoapi), [Mila432](https://github.com/Mila432/Pokemon_Go_API)'s API, [leegao's additions](https://github.com/leegao/pokemongo-api-demo/tree/simulation) and [Flask-GoogleMaps](https://github.com/rochacbruno/Flask-GoogleMaps). Current version relies primarily on the pgoapi and Google Maps JS API.
+相关链接：
+//百度地图JavaScriptAPI
+http://lbsyun.baidu.com/index.php?title=jspopular
